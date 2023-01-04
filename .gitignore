@@ -68,3 +68,4 @@ xwiki-platform-core/xwiki-platform-web/xwiki-platform-web-templates/src/main/res
 .clover
 *~
 **/overlays/*.info
+.vscode
