@@ -36,15 +36,17 @@ define('macroService', ['jquery', 'xwiki-meta'], function($, xcontext) {
 
   var macroDescriptors = {},
 
-  getMacroDescriptor = function(macroId) {
+  getMacroDescriptor = function(macroId, maybeSourceDocumentReference) {
     var deferred = $.Deferred();
     var macroDescriptor = macroDescriptors[macroId];
     if (macroDescriptor) {
       deferred.resolve(macroDescriptor);
     } else {
-      var url = new XWiki.Document('MacroService', 'CKEditor').getURL('get', $.param({
+      var sourceDocumentReference = maybeSourceDocumentReference || XWiki.currentDocument.documentReference;
+      var url = new XWiki.Document(sourceDocumentReference).getURL('get', $.param({
         outputSyntax: 'plain',
-        language: $('html').attr('lang')
+        language: $('html').attr('lang'),
+        sheet: 'CKEditor.MacroService'
       }));
       $.get(url, {data: 'descriptor', macroId: macroId}).done(function(macroDescriptor) {
         if (typeof macroDescriptor === 'object' && macroDescriptor !== null) {
@@ -510,12 +512,14 @@ define('macroParameterTreeDisplayer', ['jquery', 'l10n!macroEditor'], function($
     });
     var firstInputType = valueInputs.prop('type');
     var value = parameter.hasOwnProperty('value') ? parameter.value : parameter.defaultValue;
-    var matchesParameterValue = function() {
-      if (parameter.caseInsensitive) {
-        return $(this).val().toUpperCase() === value.toUpperCase();
-      } else {
-        return $(this).val() === value;
-      }
+    var matchesParameterValue = function(value) {
+      return function() {
+        if (parameter.caseInsensitive) {
+          return $(this).val().toUpperCase() === value.toUpperCase();
+        } else {
+          return $(this).val() === value;
+        }
+      };
     };
     if (firstInputType === 'checkbox' || firstInputType === 'radio') {
       // Keep only the input elements with the same type as the first one.
@@ -524,25 +528,28 @@ define('macroParameterTreeDisplayer', ['jquery', 'l10n!macroEditor'], function($
       });
       if (parameter.caseInsensitive) {
         // Use the canonical value.
-        value = valueInputs.filter(matchesParameterValue).val() || value;
+        value = valueInputs.filter(matchesParameterValue(value)).val() || value;
       }
     } else {
       // Keep only the first input element.
       valueInputs = valueInputs.first();
       // For select inputs we should add the value to the list of options if it's missing.
       if (value && valueInputs.is('select')) {
-        var matchedOption = valueInputs.find('option').filter(matchesParameterValue);
-        if (matchedOption.length > 0) {
-          // Use the canonical value.
-          value = matchedOption.val();
-        } else {
-          // Add the missing option.
-          $('<option></option>').val(value).text(value).appendTo(valueInputs);
-        }
+        value = valueInputs.prop('type') === 'select-multiple' ? value.split(',') : [value];
+        value.forEach(function (val, index) {
+          var matchedOption = valueInputs.find('option').filter(matchesParameterValue(val));
+          if (matchedOption.length > 0) {
+            // Use the canonical value.
+            value[index] = matchedOption.val();
+          } else {
+            // Add the missing option.
+            $('<option></option>').val(val).text(val).appendTo(valueInputs);
+          }
+        });
       }
     }
     // We pass the value as an array in order to properly handle radio inputs and checkboxes.
-    valueInputs.val([value]);
+    valueInputs.val(Array.isArray(value) ? value : [value]);
     return field;
   },
 
@@ -693,7 +700,7 @@ define(
         }, 1000);
         return emptyMandatoryParams.length === 0;
       },
-      update: function(macroCall, syntaxId) {
+      update: function(macroCall, syntaxId, sourceDocumentReference) {
         var macroId = macroCall.name;
         if (syntaxId) {
           macroId += '/' + syntaxId;
@@ -704,7 +711,7 @@ define(
           .prop('requestNumber', requestNumber);
 
         // Load the macro descriptor
-        macroService.getMacroDescriptor(macroId)
+        macroService.getMacroDescriptor(macroId, sourceDocumentReference)
           .done(maybeCreateMacroEditor.bind(macroEditor, requestNumber, macroCall))
           .fail(maybeShowError.bind(macroEditor, requestNumber, 'descriptorRequestFailed'));
       }
@@ -729,7 +736,7 @@ define(
       });
       macroEditorAPI = macroEditor.xwikiMacroEditor(macroCall, input.syntaxId);
     } else {
-      macroEditorAPI.update(macroCall, input.syntaxId);
+      macroEditorAPI.update(macroCall, input.syntaxId, input.sourceDocumentReference);
     }
   },
 
@@ -803,13 +810,13 @@ define(
     }
   });
 
-  $.fn.xwikiMacroEditor = function(macroCall, syntaxId) {
+  $.fn.xwikiMacroEditor = function(macroCall, syntaxId, sourceDocumentReference) {
     this.each(function() {
       var macroEditor = $(this);
       if (!macroEditor.data('macroEditorAPI')) {
         var macroEditorAPI = createMacroEditorAPI(macroEditor);
         macroEditor.data('macroEditorAPI', macroEditorAPI);
-        macroEditorAPI.update(macroCall, syntaxId);
+        macroEditorAPI.update(macroCall, syntaxId, sourceDocumentReference);
       }
     });
     return this.data('macroEditorAPI');
