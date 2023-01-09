@@ -33,5 +33,5 @@ jobs:
         id: 'upload-zip'
         uses: 'google-github-actions/upload-cloud-storage@v1'
         with:
-          glob: '${{GITHUB_WORKSPACE}}/xwiki-platform-distribution/xwiki-platform-distribution-jetty-hsqldb/target/*.zip'
+          glob: '$GITHUB_WORKSPACE/xwiki-platform-distribution/xwiki-platform-distribution-jetty-hsqldb/target/*.zip'
           destination: 'xwiki-release'
