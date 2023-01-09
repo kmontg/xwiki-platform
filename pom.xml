@@ -1484,18 +1484,6 @@
            when building snapshots while not incurring the downside of specifying a maven remote repo for releases,
            see https://blog.sonatype.com/2009/02/why-putting-repositories-in-your-poms-is-a-bad-idea/ -->
       <id>snapshot</id>
-      <pluginRepositories>
-        <pluginRepository>
-          <id>artifact-registry</id>
-          <url>artifactregistry://us-central1-maven.pkg.dev/kmonty-test/my-repo</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </pluginRepository>
-      </pluginRepositories>
       <repositories>
         <repository>
           <id>artifact-registry</id>
@@ -1505,6 +1493,28 @@
           </releases>
           <snapshots>
             <enabled>true</enabled>
+          </snapshots>
+        </repository>
+        <repository>
+          <id>xwiki-snapshots</id>
+          <name>XWiki Nexus Snapshot Repository Proxy</name>
+          <url>https://nexus.xwiki.org/nexus/content/groups/public-snapshots</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+        <repository>
+          <id>xwiki-releases</id>
+          <name>XWiki Nexus Releases Repository Proxy</name>
+          <url>https://nexus.xwiki.org/nexus/content/groups/public</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
           </snapshots>
         </repository>
       </repositories>
