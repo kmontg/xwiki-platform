@@ -14,8 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
+      - name: 'Authenticate to Google Cloud'
+        id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
@@ -27,4 +27,11 @@ jobs:
           distribution: 'adopt'
 
       - name: Build/Deploy with Maven
-        run: mvn -P distribution,snapshot -pl org.xwiki.platform:xwiki-platform-distribution-war -Dmaven.test.skip=true clean deploy
+        run: mvn -P distribution,snapshot -pl org.xwiki.platform:xwiki-platform-distribution-jetty-hsqldb -Dmaven.test.skip=true clean deploy
+
+      - name: Copy zip to GCS
+        id: 'upload-zip'
+        uses: 'google-github-actions/upload-cloud-storage@v1'
+        with:
+          glob: '${{GITHUB_WORKSPACE}}/xwiki-platform-distribution/xwiki-platform-distribution-jetty-hsqldb/target/*.zip'
+          destination: 'xwiki-release'
