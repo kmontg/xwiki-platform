@@ -69,3 +69,6 @@ xwiki-platform-core/xwiki-platform-web/xwiki-platform-web-templates/src/main/res
 *~
 **/overlays/*.info
 .vscode
+
+# Ignore generated credentials from google-github-actions/auth
+gha-creds-*.json
