@@ -1,4 +1,4 @@
-name: Java CI
+name: Build and Push xwiki WAR
 
 on: [push]
 
@@ -6,7 +6,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # Add "id-token" with the intended permissions.
     permissions:
       contents: 'read'
       id-token: 'write'
