@@ -35,3 +35,4 @@ jobs:
           path: './xwiki-platform-distribution/xwiki-platform-distribution-jetty-hsqldb/target'
           glob: '*.zip'
           destination: 'xwiki-release'
+          gzip: false
