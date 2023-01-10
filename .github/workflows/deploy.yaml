@@ -1,4 +1,4 @@
-name: Deploy xwiki to Cloud Run
+name: Deploy xwiki to GKE
 
 on: [workflow_dispatch]
 
