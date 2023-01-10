@@ -3,11 +3,12 @@ name: Deploy xwiki to Cloud Run
 on: [workflow_dispatch]
 
 env:
-  PROJECT_ID: kmonty-test
+  PROJECT_ID: ${{ secretes.GKE_PROJECT }}
+  GKE_CLUSTER: xwiki-cluster
+  GKE_ZONE: us-central1-c
   GAR_LOCATION: us-central1
   REPOSITORY: xwiki-docker-repo
   SERVICE: xwik
-  REGION: us-central1
   DEPLOYMENT_NAME: xwiki-app
 
 jobs:
@@ -27,6 +28,15 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
           export_environment_variables: true
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+
+      - name: 'Set up GKE Credentials'
+        uses: 'google-github-actions/get-gke-credentials@v1'
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
 
       - name: Authenticate to AR
         id: docker-auth
