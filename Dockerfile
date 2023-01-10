@@ -1,21 +1,19 @@
 FROM google/cloud-sdk:alpine as builder
 
-WORKDIR /xwiki
+ARG GOOGLE_APPLICATION_CREDENTIALS
 
-RUN gsutil cp gs://xwiki-release/target/xwiki-platform-distribution-jetty-hsqldb-15.0-SNAPSHOT.zip .
+WORKDIR /xwiki/
 
-FROM debian:buster-slim
-RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    --no-install-recommends \
-    ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+ARG GCLOUD_KEY_FILE_CONTENT
+RUN echo $GCLOUD_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=- \
+  && gsutil cp gs://xwiki-release/target/xwiki-platform-distribution-jetty-hsqldb-15.0-SNAPSHOT.zip ./
 
-WORKDIR /
+FROM openjdk:11
 
-COPY --from=builder /xwiki/xwiki-platform-distribution-jetty-hsqldb-15.0-SNAPSHOT.zip /xwiki
+WORKDIR /xwiki/
+
+COPY --from=builder /xwiki/xwiki-platform-distribution-jetty-hsqldb-15.0-SNAPSHOT.zip ./
 RUN unzip /xwiki/xwiki-platform-distribution-jetty-hsqldb-15.0-SNAPSHOT.zip -d /xwiki
-RUN rm /xwiki/xwiki-platform-distribution-jetty-hsqldb-15.0-SNAPSHOT.zip
+RUN rm ./xwiki-platform-distribution-jetty-hsqldb-15.0-SNAPSHOT.zip
 
-CMD ["/xwiki/xwiki-platform-distribution-jetty-hsqldb-15.0-SNAPSHOT/start_xwiki.sh"]
-
-
+CMD ["./xwiki-platform-distribution-jetty-hsqldb-15.0-SNAPSHOT/start_xwiki.sh"]

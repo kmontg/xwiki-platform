@@ -17,5 +17,11 @@ jobs:
         id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
-          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}''
+          token_format: 'access_token'
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+          export_environment_variables: true
+
+      - name: Build Container
+        run: |-
+          docker build -t gha-test --build-arg GCLOUD_KEY_FILE_CONTENT='${{ secrets.GOOGLE_CREDENTIALS }}' ./
 
