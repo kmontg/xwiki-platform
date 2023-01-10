@@ -5,7 +5,7 @@ on: [workflow_dispatch]
 env:
   PROJECT_ID: kmonty-test
   GAR_LOCATION: us-central1
-  REPOSITORY: xwiki-docker-rep
+  REPOSITORY: xwiki-docker-repo
   SERVICE: xwik
   REGION: us-central1
 
