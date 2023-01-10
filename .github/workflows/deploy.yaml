@@ -9,6 +9,7 @@ env:
   SERVICE: xwik
   REGION: us-central1
   
+jobs:
   build:
     runs-on: ubuntu-latest
 
