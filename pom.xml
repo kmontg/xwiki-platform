@@ -1487,7 +1487,7 @@
       <repositories>
         <repository>
           <id>artifact-registry</id>
-          <url>artifactregistry://us-central1-maven.pkg.dev/kmonty-test/my-repo</url>
+          <url>artifactregistry://us-central1-maven.pkg.dev/kmonty-test/xwiki-maven-repo</url>
           <releases>
             <enabled>true</enabled>
           </releases>
@@ -1523,11 +1523,11 @@
   <distributionManagement>
     <snapshotRepository>
       <id>artifact-registry</id>
-      <url>artifactregistry://us-central1-maven.pkg.dev/kmonty-test/my-repo</url>
+      <url>artifactregistry://us-central1-maven.pkg.dev/kmonty-test/xwiki-maven-repo</url>
     </snapshotRepository>
     <repository>
       <id>artifact-registry</id>
-      <url>artifactregistry://us-central1-maven.pkg.dev/kmonty-test/my-repo</url>
+      <url>artifactregistry://us-central1-maven.pkg.dev/kmonty-test/xwiki-maven-repo</url>
     </repository>
   </distributionManagement>
 </project>
