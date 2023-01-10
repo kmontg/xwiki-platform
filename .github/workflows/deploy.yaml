@@ -3,7 +3,6 @@ name: Deploy xwiki to Cloud Run
 on: [workflow_dispatch]
 
 env:
-  PROJECT_ID: ${{ secretes.GKE_PROJECT }}
   GKE_CLUSTER: xwiki-cluster
   GKE_ZONE: us-central1-c
   GAR_LOCATION: us-central1
@@ -48,8 +47,8 @@ jobs:
 
       - name: Build and Push Container
         run: |-
-          docker build --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE:$GITHUB_SHA" --build-arg GCLOUD_KEY_FILE_CONTENT='${{ secrets.GOOGLE_CREDENTIALS }}' ./
-          docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE:$GITHUB_SHA"
+          docker build --tag "$GAR_LOCATION-docker.pkg.dev/$GCP_PROJECT/$REPOSITORY/$SERVICE:$GITHUB_SHA" --build-arg GCLOUD_KEY_FILE_CONTENT='${{ secrets.GOOGLE_CREDENTIALS }}' ./
+          docker push "$GAR_LOCATION-docker.pkg.dev/$GCP_PROJECT/$REPOSITORY/$SERVICE:$GITHUB_SHA"
 
       - name: Set up Kustomize
         run: |-
@@ -59,7 +58,7 @@ jobs:
       - name: Deploy
         run: |-
           # replacing the image name in the k8s template
-          ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/SERVICE:TAG=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE:$GITHUB_SHA
+          ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/SERVICE:TAG=$GAR_LOCATION-docker.pkg.dev/$GCP_PROJECT/$REPOSITORY/$SERVICE:$GITHUB_SHA
           ./kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/$DEPLOYMENT_NAME
           kubectl get services -o wide
